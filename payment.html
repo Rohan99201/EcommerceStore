@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Details</title>
+<style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f3f4f8; }
+    header { background: linear-gradient(90deg, #0f9b8e, #7e5bef); padding: 15px; color: white; text-align: center; }
+    .form-container { max-width: 550px; margin: 50px auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    input, button { width: 95%; padding: 10px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; }
+    button { background: #0f9b8e; color: white; border: none; font-size: 1em; }
+    button:hover { background: #0d8378; }
+</style>
+</head>
+<body>
+
+<header>
+    <h1 style="cursor: pointer;" onclick="window.location.href='index.html'">Payment Details</h1>
+</header>
+
+<div class="form-container">
+    <h2>Enter Your Payment Info</h2>
+    <input type="text" id="cardNumber" placeholder="Card Number">
+    <input type="text" id="expiry" placeholder="Expiry Date (MM/YY)">
+    <input type="text" id="cvv" placeholder="CVV">
+    <button onclick="processPayment()">Complete Purchase</button>
+</div>
+
+<script>
+    // Ensure GA4 dataLayer exists
+    window.dataLayer = window.dataLayer || [];
+
+    // Dummy Tealium object for local testing
+    window.utag = window.utag || {
+        link: function(data) {
+            console.log("Tealium utag.link called:", data);
+        }
+    };
+
+    function processPayment() {
+        const paymentInfo = {
+            cardNumber: document.getElementById('cardNumber').value,
+            expiry: document.getElementById('expiry').value
+        };
+        localStorage.setItem('paymentInfo', JSON.stringify(paymentInfo));
+
+        const transaction = {
+            id: 'TX' + Date.now(),
+            amount: Math.floor(Math.random() * 100) + 20,
+            date: new Date().toLocaleString()
+        };
+
+        let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+        transactions.push(transaction);
+        localStorage.setItem('transactions', JSON.stringify(transactions));
+
+        // GA4 purchase event
+        dataLayer.push({
+            event: "purchase",
+            ecommerce: {
+                transaction_id: transaction.id,
+                value: transaction.amount,
+                currency: "USD"
+            }
+        });
+
+        // Tealium purchase tracking
+        utag.link({
+            event_name: "purchase",
+            transaction_id: transaction.id,
+            transaction_value: transaction.amount,
+            currency: "USD"
+        });
+
+        alert("Payment successful!");
+        window.location.href = 'transactions.html';
+    }
+</script>
+</body>
+</html>

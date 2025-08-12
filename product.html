@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f3f4f8; }
+        header { background: linear-gradient(90deg, #0f9b8e, #7e5bef); padding: 15px; color: white; text-align: center; }
+        nav { background: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 10px; display: flex; justify-content: center; gap: 20px; }
+        nav a { text-decoration: none; color: #0f9b8e; font-weight: bold; }
+        nav a:hover { text-decoration: underline; }
+        .product-details { max-width: 900px; margin: 30px auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; gap: 20px; }
+        .product-details img { width: 350px; height: auto; border-radius: 8px; }
+        .info { flex: 1; }
+        .info h2 { margin-bottom: 10px; font-size: 2em; }
+        .info p { color: #555; font-size: 1.1em; margin-bottom: 15px; }
+        .price { font-size: 1.5em; color: #0f9b8e; margin-bottom: 20px; }
+        button { margin-right: 10px; padding: 12px 18px; border: none; background: #0f9b8e; color: white; cursor: pointer; border-radius: 6px; font-size: 1em; transition: background 0.3s ease; }
+        button:hover { background: #0d8378; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 style="cursor: pointer;" onclick="window.location.href='index.html'">Product Details</h1>
+</header>
+
+<nav>
+    <a href="shipping.html">Shipping</a>
+    <a href="payment.html">Payment</a>
+    <a href="transactions.html">Transactions</a>
+    <a href="login.html">Login</a>
+</nav>
+
+<div class="product-details" id="product-details"></div>
+
+<script>
+// ✅ Always initialize GA4 and Tealium objects first
+window.dataLayer = window.dataLayer || [];
+window.utag_data = window.utag_data || {};
+
+// Product list
+const products = [
+    { id: 1, name: "Wireless Earbuds", price: 29.99, category: "Audio", description: "High-quality wireless earbuds with deep bass.", image: "https://m.media-amazon.com/images/I/61oCISLE+PL._UF1000,1000_QL80_.jpg" },
+    { id: 2, name: "Smart Watch", price: 59.99, category: "Wearables", description: "Track your fitness and stay connected.", image: "https://gourban.in/cdn/shop/files/Pulse.jpg?v=1749553994&width=2048" },
+    { id: 3, name: "Gaming Mouse", price: 19.99, category: "Accessories", description: "Precision gaming mouse with RGB lighting.", image: "https://rukminim2.flixcart.com/image/704/844/xif0q/mouse/3/k/w/rgb-fighter-st-mwg-01-dpi-upto-8800-7d-fully-programmable-original-imahc37hngxb4fkg.jpeg?q=90&crop=false" },
+    { id: 4, name: "Bluetooth Speaker", price: 39.99, category: "Audio", description: "Portable speaker with excellent sound.", image: "https://arcticfox.com/cdn/shop/files/8_b5937b5b-8c26-4450-a248-3162a20e83a3.jpg?v=1706020146" },
+    { id: 5, name: "Laptop Stand", price: 24.99, category: "Office", description: "Ergonomic stand for laptops.", image: "https://megastro.in/wp-content/uploads/2023/10/MegaStro-MVP-Edition-Laptop-Stand-360-Rotatable-1.jpg" },
+    { id: 6, name: "Camera", price: 229.99, category: "Photo", description: "Capture stunning images with this high-resolution camera.", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrGEKSqlHRT60y4se5VJai1Qqu54iR-Bba0g&s" },
+    { id: 7, name: "SunGlasses", price: 39.99, category: "Fashion", description: "Stylish sunglasses with UV protection.", image: "https://d3995ea24pmi7m.cloudfront.net/media/catalog/product/M/8/M8022BR1V_1_lar.jpg" },
+    { id: 8, name: "Sunscreen", price: 29.99, category: "Cosmetics", description: "Vitamin C & E sunscreen with SPF 50 for glowing skin.", image: "https://media6.ppl-media.com//tr:h-235,w-235,c-at_max,dpr-2,q-40/static/img/product/372527/dot-and-key-vitamin-c-e-super-bright-sunscreen-spf-50-for-even-toned-and-glowing-skin-no-white-cast-waterlight-i-uva-b-and-blue-light-protection-i-better-vitamin-d-absorption-80gm_01_display_1742468446_9005610e.jpg" }
+];
+
+const params = new URLSearchParams(window.location.search);
+const productId = parseInt(params.get("id"));
+const product = products.find(p => p.id === productId);
+
+if (product) {
+    document.getElementById("product-details").innerHTML = `
+        <img src="${product.image}" alt="${product.name}">
+        <div class="info">
+            <h2>${product.name}</h2>
+            <p>${product.description}</p>
+            <div class="price">$${product.price.toFixed(2)}</div>
+            <button onclick="addToCart(${product.id})">Add to Cart</button>
+            <button onclick="buyNow(${product.id})">Buy Now</button>
+        </div>
+    `;
+
+    // GA4 view_item
+    dataLayer.push({
+        event: "view_item",
+        ecommerce: {
+            items: [{
+                item_id: product.id,
+                item_name: product.name,
+                item_category: product.category,
+                price: product.price
+            }]
+        }
+    });
+
+    // Tealium page view (static utag_data)
+    window.utag_data = {
+        page_name: "product detail",
+        product_id: [product.id],
+        product_name: [product.name],
+        product_category: [product.category],
+        product_price: [product.price],
+        event_type: "view_item"
+    };
+}
+
+function addToCart(id) {
+    if (!product) return;
+    alert(`Added to cart: ${product.name}`);
+
+    // GA4 add_to_cart
+    dataLayer.push({
+        event: "add_to_cart",
+        ecommerce: {
+            items: [{
+                item_id: product.id,
+                item_name: product.name,
+                item_category: product.category,
+                price: product.price,
+                quantity: 1
+            }]
+        }
+    });
+
+    // Tealium add_to_cart
+    utag.link({
+        event_type: "add_to_cart",
+        product_id: [product.id],
+        product_name: [product.name],
+        product_category: [product.category],
+        product_price: [product.price],
+        quantity: [1]
+    });
+}
+
+function buyNow(id) {
+    if (!product) return;
+    alert(`Proceeding to checkout for: ${product.name}`);
+
+    // GA4 begin_checkout
+    dataLayer.push({
+        event: "begin_checkout",
+        ecommerce: {
+            items: [{
+                item_id: product.id,
+                item_name: product.name,
+                item_category: product.category,
+                price: product.price,
+                quantity: 1
+            }]
+        }
+    });
+
+    // Tealium begin_checkout
+    utag.link({
+        event_type: "begin_checkout",
+        product_id: [product.id],
+        product_name: [product.name],
+        product_category: [product.category],
+        product_price: [product.price],
+        quantity: [1]
+    });
+
+    // Redirect after tracking
+    window.location.href = "shipping.html";
+}
+</script>
+
+</body>
+</html>

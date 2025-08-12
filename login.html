@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - My Store</title>
+<style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f3f4f8; }
+    header { background: linear-gradient(90deg, #0f9b8e, #7e5bef); padding: 15px; color: white; text-align: center; }
+    .form-container { max-width: 400px; margin: 50px auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    input, button { width: 95%; padding: 10px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; }
+    button { background: #0f9b8e; color: white; border: none; font-size: 1em; }
+    button:hover { background: #0d8378; }
+</style>
+</head>
+<body>
+
+<header>
+    <h1 style="cursor: pointer;" onclick="window.location.href='index.html'">Login to the Store</h1>
+</header>
+
+<div class="form-container">
+    <h2>Sign In</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+</div>
+
+<script>
+    // Ensure GA4 dataLayer is available
+    window.dataLayer = window.dataLayer || [];
+
+    // Dummy Tealium utag object for testing if utag is not loaded
+    window.utag = window.utag || { 
+        link: function(data){ console.log("Tealium utag.link called:", data); } 
+    };
+
+    function login() {
+        const email = document.getElementById('email').value;
+        if (!email) return alert('Enter your email');
+        
+        localStorage.setItem('userEmail', email);
+
+        // GA4 login event
+        dataLayer.push({
+            event: "login",
+            method: "email",
+            user_email: email
+        });
+
+        // Tealium event tracking
+        utag.link({
+            event_name: "login",
+            login_method: "email",
+            user_email: email
+        });
+
+        alert('Login successful!');
+        window.location.href = 'shipping.html';
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My eCommerce Store</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f3f4f8; color: #333; }
+        header { background: linear-gradient(90deg, #0f9b8e, #7e5bef); padding: 15px; color: white; text-align: center; position: sticky; top: 0; z-index: 100; }
+        nav { margin-top: 10px; }
+        nav a { color: white; text-decoration: none; margin: 0 10px; font-weight: bold; }
+        nav a:hover { text-decoration: underline; }
+        header input { padding: 8px; width: 50%; max-width: 400px; border: none; border-radius: 5px; outline: none; }
+        .hero { background: linear-gradient(to right, #0f9b8e, #7e5bef); color: white; text-align: center; padding: 70px 20px; }
+        .hero h1 { font-size: 3em; margin-bottom: 10px; }
+        .hero p { font-size: 1.2em; opacity: 0.9; }
+        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 20px; }
+        .product { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .product:hover { transform: translateY(-8px) scale(1.03); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+        .product img { width: 100%; height: 230px; object-fit: cover; transition: transform 0.3s ease; }
+        .product:hover img { transform: scale(1.05); }
+        .product h3 { margin: 15px 0 5px; font-size: 1.3em; }
+        .product p { color: #777; font-size: 1.1em; }
+        .product button { margin: 10px 5px; padding: 10px 15px; border: none; background: #0f9b8e; color: white; cursor: pointer; border-radius: 6px; font-size: 0.95em; transition: background 0.3s ease; }
+        .product button:hover { background: #0d8378; }
+        footer { background: #222; color: white; text-align: center; padding: 15px; margin-top: 30px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 style="cursor: pointer;" onclick="window.location.href='index.html'">Product Details</h1>
+    <input type="text" id="search" placeholder="Search products...">
+    <nav>
+        <a href="login.html">Login</a>
+        <a href="transactions.html">Transactions</a>
+    </nav>
+</header>
+
+<div class="hero">
+    <h1>Welcome to Our Store</h1>
+    <p>Find the best deals on your favorite gadgets and accessories</p>
+</div>
+
+<div class="container" id="product-list"></div>
+
+<footer>
+    <p>© 2025 My eCommerce Store | Designed with ❤️</p>
+</footer>
+
+<script>
+    // Initialise GA4 Data Layer
+    window.dataLayer = window.dataLayer || [];
+    // Initialise Tealium Data Object
+    window.utag_data = window.utag_data || {};
+
+    const products = [
+        { id: 1, name: "Wireless Earbuds", price: 29.99, category: "Audio", image: "https://m.media-amazon.com/images/I/61oCISLE+PL._UF1000,1000_QL80_.jpg" },
+        { id: 2, name: "Smart Watch", price: 59.99, category: "Wearables", image: "https://gourban.in/cdn/shop/files/Pulse.jpg?v=1749553994&width=2048" },
+        { id: 3, name: "Gaming Mouse", price: 19.99, category: "Accessories", image: "https://rukminim2.flixcart.com/image/704/844/xif0q/mouse/3/k/w/rgb-fighter-st-mwg-01-dpi-upto-8800-7d-fully-programmable-original-imahc37hngxb4fkg.jpeg?q=90&crop=false" },
+        { id: 4, name: "Bluetooth Speaker", price: 39.99, category: "Audio", image: "https://arcticfox.com/cdn/shop/files/8_b5937b5b-8c26-4450-a248-3162a20e83a3.jpg?v=1706020146" },
+        { id: 5, name: "Laptop Stand", price: 24.99, category: "Office", image: "https://megastro.in/wp-content/uploads/2023/10/MegaStro-MVP-Edition-Laptop-Stand-360-Rotatable-1.jpg" },
+        { id: 6, name: "Camera", price: 229.99, category: "Photo", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrGEKSqlHRT60y4se5VJai1Qqu54iR-Bba0g&s" },
+        { id: 7, name: "SunGlasses", price: 39.99, category: "Fashion", image: "https://d3995ea24pmi7m.cloudfront.net/media/catalog/product/M/8/M8022BR1V_1_lar.jpg" },
+        { id: 8, name: "Sunscreen", price: 29.99, category: "Cosmetics", image: "https://media6.ppl-media.com//tr:h-235,w-235,c-at_max,dpr-2,q-40/static/img/product/372527/dot-and-key-vitamin-c-e-super-bright-sunscreen-spf-50-for-even-toned-and-glowing-skin-no-white-cast-waterlight-i-uva-b-and-blue-light-protection-i-better-vitamin-d-absorption-80gm_01_display_1742468446_9005610e.jpg" },
+    ];
+
+    function displayProducts(listToShow = products) {
+        const list = document.getElementById("product-list");
+        list.innerHTML = "";
+        listToShow.forEach(product => {
+            const div = document.createElement("div");
+            div.className = "product";
+            div.innerHTML = `
+                <img src="${product.image}" alt="${product.name}">
+                <h3>${product.name}</h3>
+                <p>$${product.price.toFixed(2)}</p>
+                <button onclick="viewProduct(${product.id})">View Item</button>
+                <button onclick="buyNow(${product.id})">Buy Now</button>
+            `;
+            list.appendChild(div);
+        });
+
+        // GA4: view_item_list
+        dataLayer.push({
+            event: "view_item_list",
+            ecommerce: {
+                item_list_name: "Homepage Product List",
+                items: listToShow.map(p => ({
+                    item_id: p.id,
+                    item_name: p.name,
+                    item_category: p.category,
+                    price: p.price
+                }))
+            }
+        });
+
+        // Tealium: view_item_list
+        window.utag_data = {
+            event_name: "view_item_list",
+            item_list_name: "Homepage Product List",
+            product_id: listToShow.map(p => p.id),
+            product_name: listToShow.map(p => p.name),
+            product_category: listToShow.map(p => p.category),
+            product_price: listToShow.map(p => p.price)
+        };
+        if (typeof utag !== "undefined" && typeof utag.link === "function") {
+            utag.link(window.utag_data);
+        }
+    }
+
+    function viewProduct(id) {
+        const product = products.find(p => p.id === id);
+
+        dataLayer.push({
+            event: "view_item",
+            ecommerce: {
+                items: [{
+                    item_id: product.id,
+                    item_name: product.name,
+                    item_category: product.category,
+                    price: product.price
+                }]
+            }
+        });
+
+        window.utag_data = {
+            event_name: "product_view",
+            product_id: [product.id],
+            product_name: [product.name],
+            product_category: [product.category],
+            product_price: [product.price]
+        };
+        if (typeof utag !== "undefined" && typeof utag.link === "function") {
+            utag.link(window.utag_data);
+        }
+
+        window.location.href = `product.html?id=${product.id}`;
+    }
+
+    function buyNow(id) {
+        const product = products.find(p => p.id === id);
+
+        dataLayer.push({
+            event: "add_to_cart",
+            ecommerce: {
+                currency: "USD",
+                items: [{
+                    item_id: product.id,
+                    item_name: product.name,
+                    item_category: product.category,
+                    price: product.price,
+                    quantity: 1
+                }]
+            }
+        });
+
+        window.utag_data = {
+            event_name: "add_to_cart",
+            product_id: [product.id],
+            product_name: [product.name],
+            product_category: [product.category],
+            product_price: [product.price],
+            product_quantity: [1]
+        };
+        if (typeof utag !== "undefined" && typeof utag.link === "function") {
+            utag.link(window.utag_data);
+        }
+
+        window.location.href = "shipping.html";
+    }
+
+    document.getElementById("search").addEventListener("input", function(e) {
+        const query = e.target.value.toLowerCase();
+        const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+        displayProducts(filtered);
+    });
+
+    displayProducts();
+</script>
+
+</body>
+</html>
